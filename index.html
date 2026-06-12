@@ -1,20 +1,426 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Francesco Di Presa</title>
-    <style>
-        body { font-family: Arial, sans-serif; max-width: 600px; margin: 80px auto; padding: 20px; color: #333; }
-        h1 { font-size: 1.8rem; }
-        p { line-height: 1.6; color: #555; }
-        a { color: #0066cc; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Francesco Di Presa — Data Scientist · Causal Inference & Marketing Analytics</title>
+<meta name="description" content="Francesco Di Presa — data scientist specializing in causal inference and marketing analytics. MSc at Erasmus School of Economics, co-founder of D-Brick.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F4F6F3;
+  --ink:#16211B;
+  --ink-soft:#48544D;
+  --line:#D8DED9;
+  --teal:#1E6B58;
+  --coral:#D9572B;
+  --card:#FCFDFB;
+  --mono:'IBM Plex Mono', monospace;
+  --serif:'IBM Plex Serif', Georgia, serif;
+  --sans:'IBM Plex Sans', -apple-system, sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--teal);text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:2px solid var(--teal);outline-offset:3px;border-radius:2px}
+.wrap{max-width:1060px;margin:0 auto;padding:0 24px}
+
+/* ---------- scroll reveal ---------- */
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}
+.reveal.visible{opacity:1;transform:none}
+
+/* ---------- nav ---------- */
+nav{position:sticky;top:0;z-index:50;background:rgba(244,246,243,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:60px}
+.logo{font-family:var(--mono);font-weight:500;font-size:.95rem;color:var(--ink);letter-spacing:.02em}
+.logo .hat{color:var(--coral)}
+.nav-links{display:flex;gap:28px}
+.nav-links a{color:var(--ink-soft);font-size:.9rem;font-weight:500}
+.nav-links a:hover{color:var(--ink);text-decoration:none}
+
+/* ---------- hero ---------- */
+.hero{padding:84px 0 64px;display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+.eyebrow{font-family:var(--mono);font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);margin-bottom:18px}
+h1{font-family:var(--serif);font-weight:500;font-size:clamp(2.2rem,4.5vw,3.3rem);line-height:1.12;letter-spacing:-.01em}
+h1 em{font-style:italic;color:var(--teal)}
+.hero .name{font-family:var(--mono);font-size:.95rem;color:var(--ink);margin-top:26px}
+.hero .name b{font-weight:500}
+.hero p.lede{margin-top:14px;font-size:1.06rem;color:var(--ink-soft);max-width:46ch}
+.hero-ctas{margin-top:30px;display:flex;gap:14px;flex-wrap:wrap}
+.btn{display:inline-block;font-family:var(--mono);font-size:.85rem;padding:11px 20px;border-radius:3px;border:1px solid var(--ink);transition:transform .15s ease}
+.btn:hover{text-decoration:none;transform:translateY(-2px)}
+.btn-primary{background:var(--ink);color:var(--paper)}
+.btn-ghost{color:var(--ink)}
+
+/* hero chart */
+.chart-card{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:22px 22px 14px}
+.chart-title{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);letter-spacing:.06em;text-transform:uppercase;display:flex;justify-content:space-between;gap:10px;margin-bottom:10px}
+.chart-title .beta{color:var(--coral)}
+.legend{display:flex;gap:18px;font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);margin-top:8px}
+.legend span::before{content:"";display:inline-block;width:18px;height:2px;margin-right:6px;vertical-align:middle}
+.legend .t::before{background:var(--coral)}
+.legend .c::before{background:var(--ink-soft)}
+#treatLine{stroke-dasharray:1000;stroke-dashoffset:1000;animation:draw 2.2s .4s ease-out forwards}
+#ctrlLine{stroke-dasharray:1000;stroke-dashoffset:1000;animation:draw 2.2s ease-out forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.pulse-dot{animation:pulse 2s 2.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* ---------- sections ---------- */
+section{padding:64px 0;border-top:1px solid var(--line)}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+h2{font-family:var(--serif);font-weight:500;font-size:1.7rem}
+.sec-note{font-family:var(--mono);font-size:.75rem;color:var(--ink-soft)}
+.sec-intro{color:var(--ink-soft);max-width:62ch;margin-bottom:36px}
+
+/* project cards */
+.proj-group{margin-bottom:48px}
+.group-label{font-family:var(--mono);font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:0}
+.proj{display:grid;grid-template-columns:minmax(200px,260px) 1fr;gap:24px;padding:26px 0;border-bottom:1px solid var(--line);transition:background .2s ease}
+.proj:hover{background:rgba(252,253,251,.7)}
+.proj-metric{font-family:var(--mono);font-size:.95rem}
+.proj-metric .val{font-size:1.35rem;font-weight:500;color:var(--ink);display:block;line-height:1.2}
+.proj-metric .stars{color:var(--coral);letter-spacing:.1em}
+.proj-metric .sub{display:block;font-size:.74rem;color:var(--ink-soft);margin-top:6px}
+.mini-chart{margin-top:14px;max-width:200px}
+.proj-body h3{font-family:var(--serif);font-weight:600;font-size:1.18rem;margin-bottom:6px}
+.proj-body p{color:var(--ink-soft);font-size:.97rem;max-width:64ch}
+.tags{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px}
+.tag{font-family:var(--mono);font-size:.7rem;color:var(--ink-soft);border:1px solid var(--line);background:var(--card);border-radius:3px;padding:3px 8px;transition:border-color .2s ease,color .2s ease}
+.proj:hover .tag{border-color:var(--teal)}
+.featured{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:26px;margin-top:-1px}
+.table-note{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);margin-top:14px}
+.table-note .s{color:var(--coral)}
+
+/* mini SHAP bars */
+.shap-bar{fill:var(--teal);transform:scaleX(0);transform-origin:left;transition:transform 1s ease .2s}
+.visible .shap-bar{transform:scaleX(1)}
+.shap-bar.c{fill:var(--coral)}
+.mini-label{font-family:var(--mono);font-size:9px;fill:#48544D}
+
+/* live dot */
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--coral);display:inline-block;margin-right:7px;animation:pulse 1.6s ease-in-out infinite}
+
+/* ---------- experience timeline ---------- */
+.xp{border-left:2px solid var(--line);margin-left:6px;padding-left:28px;position:relative}
+.xp-item{position:relative;padding:0 0 34px}
+.xp-item:last-child{padding-bottom:4px}
+.xp-item::before{content:"";position:absolute;left:-34px;top:8px;width:10px;height:10px;border-radius:50%;background:var(--paper);border:2px solid var(--teal)}
+.xp-item.now::before{background:var(--coral);border-color:var(--coral)}
+.xp-when{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);letter-spacing:.06em;text-transform:uppercase}
+.xp-item h3{font-family:var(--serif);font-weight:600;font-size:1.1rem;margin:4px 0 2px}
+.xp-role{font-family:var(--mono);font-size:.8rem;color:var(--teal)}
+.xp-item p{color:var(--ink-soft);font-size:.95rem;max-width:66ch;margin-top:8px}
+
+/* ---------- about ---------- */
+.about-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:48px}
+.about-grid p{color:var(--ink-soft);margin-bottom:16px}
+.facts{font-family:var(--mono);font-size:.85rem;border:1px solid var(--line);background:var(--card);border-radius:6px;padding:22px}
+.facts dt{color:var(--teal);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;margin-top:14px}
+.facts dt:first-child{margin-top:0}
+.facts dd{color:var(--ink);margin-top:2px}
+
+/* ---------- contact ---------- */
+.contact{display:flex;flex-direction:column;align-items:flex-start;gap:18px}
+.contact h2{font-size:2rem}
+.contact-links{display:flex;gap:14px;flex-wrap:wrap}
+footer{border-top:1px solid var(--line);padding:26px 0;font-family:var(--mono);font-size:.74rem;color:var(--ink-soft)}
+
+@media (max-width:840px){
+  .hero{grid-template-columns:1fr;padding:56px 0 44px;gap:36px}
+  .proj{grid-template-columns:1fr;gap:10px}
+  .about-grid{grid-template-columns:1fr}
+  .nav-links{gap:18px}
+}
+@media (prefers-reduced-motion:reduce){
+  #treatLine,#ctrlLine{animation:none;stroke-dashoffset:0}
+  .pulse-dot,.live-dot{animation:none}
+  html{scroll-behavior:auto}
+  .btn:hover{transform:none}
+  .reveal{opacity:1;transform:none;transition:none}
+  .shap-bar{transform:scaleX(1);transition:none}
+}
+</style>
 </head>
 <body>
-    <h1>Francesco Di Presa</h1>
-    <p>MSc Business Information Management — Erasmus University Rotterdam</p>
-    <p>Data Scientist | Python, R, Machine Learning</p>
-    <p><a href="https://github.com/FrancescoDiPresa">GitHub</a></p>
+
+<nav>
+  <div class="wrap nav-inner">
+    <span class="logo">dipresa<span class="hat">^</span>β</span>
+    <div class="nav-links">
+      <a href="#projects">Projects</a>
+      <a href="#experience">Experience</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero wrap">
+  <div>
+    <p class="eyebrow">Data Scientist · Rotterdam, NL</p>
+    <h1>I estimate what <em>actually causes</em> what.</h1>
+    <p class="name"><b>Francesco Di Presa</b> — causal inference &amp; marketing analytics</p>
+    <p class="lede">From a 380,000-review panel study on AI in customer service to production data pipelines for a business I co-founded. MSc Data Science &amp; Marketing Analytics at Erasmus University, with 3+ years in business intelligence and analytics.</p>
+    <div class="hero-ctas">
+      <a class="btn btn-primary" href="#projects">Selected work</a>
+      <a class="btn btn-ghost" href="#contact">Get in touch</a>
+    </div>
+  </div>
+
+  <figure class="chart-card" aria-label="Event-study chart: customer satisfaction for AI-adopting firms rises after the ChatGPT launch, control firms stay flat.">
+    <div class="chart-title"><span>Effect of AI adoption on ratings</span><span class="beta">β = +0.30, p = .006</span></div>
+    <svg viewBox="0 0 440 240" width="100%" role="img">
+      <g stroke="#E3E8E3" stroke-width="1">
+        <line x1="40" y1="40" x2="420" y2="40"/>
+        <line x1="40" y1="90" x2="420" y2="90"/>
+        <line x1="40" y1="140" x2="420" y2="140"/>
+        <line x1="40" y1="190" x2="420" y2="190"/>
+      </g>
+      <line x1="40" y1="20" x2="40" y2="190" stroke="#9AA59D" stroke-width="1"/>
+      <line x1="40" y1="190" x2="420" y2="190" stroke="#9AA59D" stroke-width="1"/>
+      <line x1="250" y1="24" x2="250" y2="190" stroke="#D9572B" stroke-width="1" stroke-dasharray="4 4" opacity=".55"/>
+      <text x="250" y="16" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="#D9572B">Nov 2022 · ChatGPT</text>
+      <path id="ctrlLine" d="M40,150 C90,148 140,152 190,149 C220,147 280,151 340,149 C370,148 400,150 420,149" fill="none" stroke="#48544D" stroke-width="2"/>
+      <path id="treatLine" d="M40,142 C90,140 140,144 190,141 C215,140 240,139 250,137 C290,124 330,104 370,86 C390,77 408,70 420,66" fill="none" stroke="#D9572B" stroke-width="2.5"/>
+      <circle class="pulse-dot" cx="420" cy="66" r="4" fill="#D9572B"/>
+      <text x="40" y="208" font-family="IBM Plex Mono" font-size="10" fill="#48544D">2021</text>
+      <text x="404" y="208" font-family="IBM Plex Mono" font-size="10" fill="#48544D">2025</text>
+      <text x="14" y="110" font-family="IBM Plex Mono" font-size="10" fill="#48544D" transform="rotate(-90 14 110)">avg rating</text>
+    </svg>
+    <div class="legend"><span class="t">AI adopters (treated)</span><span class="c">control firms</span></div>
+  </figure>
+</header>
+
+<section id="projects">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2>Selected projects</h2>
+      <span class="sec-note">key estimate · description · stack</span>
+    </div>
+    <p class="sec-intro reveal">Grouped by what they demonstrate: identifying causal effects, building ML &amp; NLP systems, and shipping data products that run in the real world.</p>
+
+    <!-- group 1 -->
+    <div class="proj-group">
+      <p class="group-label reveal">I · Causal inference &amp; econometrics</p>
+
+      <article class="proj featured reveal">
+        <div class="proj-metric">
+          <span class="val">β = +0.30 <span class="stars">***</span></span>
+          effect on ratings
+          <span class="sub">380k reviews · 9 firms · 940 clusters</span>
+        </div>
+        <div class="proj-body">
+          <h3>The Role of Emotion in AI-Mediated Customer Service — MSc thesis</h3>
+          <p>Built a text-based AI Intensity Index from ~380,000 Google Play reviews of online travel agencies (TF-IDF + logistic classifier, validated against Google Trends at r = 0.80), then estimated its causal effect on satisfaction with two-way fixed effects panel regressions, standard errors clustered at firm × month. AI adoption raises ratings, lifts sentiment, and reduces negative emotions — with placebo tests and parallel-trends checks supporting identification.</p>
+          <div class="tags">
+            <span class="tag">TWFE panel regression</span><span class="tag">NLP</span><span class="tag">Python</span><span class="tag">VADER · GoEmotions</span>
+          </div>
+        </div>
+      </article>
+      <p class="table-note reveal"><span class="s">***</span> p &lt; 0.01 &nbsp;·&nbsp; <span class="s">**</span> p &lt; 0.05 &nbsp;·&nbsp; <span class="s">*</span> p &lt; 0.10 — yes, this whole page is a regression table.</p>
+    </div>
+
+    <!-- group 2 -->
+    <div class="proj-group">
+      <p class="group-label reveal">II · Machine learning &amp; NLP</p>
+
+      <article class="proj reveal">
+        <div class="proj-metric">
+          <span class="val">~6,000</span>
+          donors modeled
+          <span class="sub">churn drivers (SHAP)</span>
+          <svg class="mini-chart" viewBox="0 0 200 62" role="img" aria-label="Top churn drivers: tenure, NPS, alignment">
+            <text class="mini-label" x="0" y="12">tenure</text>
+            <rect class="shap-bar" x="62" y="4" width="130" height="10" rx="2"/>
+            <text class="mini-label" x="0" y="34">NPS</text>
+            <rect class="shap-bar" x="62" y="26" width="96" height="10" rx="2"/>
+            <text class="mini-label" x="0" y="56">alignment</text>
+            <rect class="shap-bar c" x="62" y="48" width="74" height="10" rx="2"/>
+          </svg>
+        </div>
+        <div class="proj-body">
+          <h3>Donor retention for UNICEF</h3>
+          <p>End-to-end R pipeline (logistic regression + XGBoost + SHAP) predicting donor churn, surfacing a "fragile donor" segment — high capacity, short tenure, low NPS. Identified donor alignment as the strongest NPS predictor and simulated retention interventions with LLM-based silicon sampling on synthetic donor personas.</p>
+          <div class="tags"><span class="tag">R</span><span class="tag">XGBoost</span><span class="tag">SHAP</span><span class="tag">Silicon sampling</span></div>
+        </div>
+      </article>
+
+      <article class="proj reveal">
+        <div class="proj-metric">
+          <span class="val">R² = 0.79</span>
+          transfer value model
+          <span class="sub">1,835 players · 5 leagues</span>
+          <svg class="mini-chart" viewBox="0 0 200 70" role="img" aria-label="Scatter of predicted versus actual transfer values with one undervalued outlier highlighted">
+            <line x1="8" y1="62" x2="192" y2="8" stroke="#D8DED9" stroke-width="1.5"/>
+            <g fill="#1E6B58" opacity=".75">
+              <circle cx="30" cy="56" r="3"/><circle cx="48" cy="50" r="3"/><circle cx="62" cy="46" r="3"/>
+              <circle cx="78" cy="38" r="3"/><circle cx="95" cy="36" r="3"/><circle cx="110" cy="28" r="3"/>
+              <circle cx="128" cy="24" r="3"/><circle cx="150" cy="18" r="3"/><circle cx="170" cy="14" r="3"/>
+              <circle cx="88" cy="48" r="3"/><circle cx="120" cy="38" r="3"/><circle cx="58" cy="54" r="3"/>
+            </g>
+            <circle cx="148" cy="44" r="4.5" fill="#D9572B"/>
+            <text class="mini-label" x="118" y="62" fill="#D9572B">−€20M mispriced</text>
+          </svg>
+        </div>
+        <div class="proj-body">
+          <h3>Moneyball 2.0 — football transfer values</h3>
+          <p>Scraped and merged 1,835 player profiles across Europe's top five leagues via fuzzy matching, engineered contextual features and K-Means player archetypes, then compared Random Forest (R² = 0.77) and neural network (R² = 0.79) pricing models. Uncovered the "Rich Club Tax" as the dominant value driver and produced an arbitrage shortlist for sporting directors — including a €20M undervaluation on Jadon Sancho.</p>
+          <div class="tags"><span class="tag">Random Forest</span><span class="tag">K-Means</span><span class="tag">Fuzzy matching</span><span class="tag">Scraping</span></div>
+        </div>
+      </article>
+
+      <article class="proj reveal">
+        <div class="proj-metric">
+          <span class="val">R² = 0.375</span>
+          review-score model
+          <span class="sub">7k reviews · 85 topics</span>
+        </div>
+        <div class="proj-body">
+          <h3>LLMs for marketing text</h3>
+          <p>Topic modeling (BERTopic), embeddings (Word2Vec), sentiment (VADER) and fine-tuned DistilBERT on Amazon Fine Food reviews; compared prompting strategies and system prompts for GPT-based classification.</p>
+          <div class="tags"><span class="tag">BERTopic</span><span class="tag">DistilBERT</span><span class="tag">Prompting</span><span class="tag">LASSO</span></div>
+        </div>
+      </article>
+    </div>
+
+    <!-- group 3 -->
+    <div class="proj-group">
+      <p class="group-label reveal">III · Built &amp; shipped</p>
+
+      <article class="proj reveal">
+        <div class="proj-metric">
+          <span class="val"><span class="live-dot" aria-hidden="true"></span>500+</span>
+          listings monitored daily
+          <span class="sub">50+ arbitrage hits / month</span>
+        </div>
+        <div class="proj-body">
+          <h3>D-Brick — data-driven LEGO reselling</h3>
+          <p>Co-founder &amp; tech lead. Built the company's data stack end to end: an automated scraping pipeline surfacing underpriced sets across Vinted, eBay, Amazon and Bol.com; multimodal AI classification of unlabelled listings via the Claude API (~80% less manual review); a Telegram bot delivering real-time margin alerts; and a Supabase + WooCommerce platform with GA4 and Meta Pixel tracking.</p>
+          <div class="tags"><span class="tag">Python</span><span class="tag">Claude API</span><span class="tag">Supabase</span><span class="tag">WooCommerce</span><span class="tag">GA4 · GTM</span></div>
+        </div>
+      </article>
+
+      <article class="proj reveal">
+        <div class="proj-metric">
+          <span class="val">74.96%</span>
+          true cart abandonment
+          <span class="sub">vs 68% misreported</span>
+        </div>
+        <div class="proj-body">
+          <h3>GA4 e-commerce dashboard</h3>
+          <p>Looker Studio dashboard on BigQuery GA4 data; configured a BigQuery data agent with 13 verified queries and caught a dashboard misconfiguration that understated cart abandonment by 7 points.</p>
+          <div class="tags"><span class="tag">BigQuery</span><span class="tag">SQL</span><span class="tag">Looker Studio</span></div>
+        </div>
+      </article>
+
+      <article class="proj reveal">
+        <div class="proj-metric">
+          <span class="val">Live</span>
+          on Garmin Connect IQ
+          <span class="sub">Monkey C · wearables</span>
+        </div>
+        <div class="proj-body">
+          <h3>ZenIQ — meditation app for Garmin watches</h3>
+          <p>Designed and built a meditation and breathing coach for Garmin wearables — box breathing and 4-7-8 presets, custom breath editor, heart-rate and stress display — published on the Garmin Connect IQ Store.</p>
+          <div class="tags"><span class="tag">Monkey C</span><span class="tag">Connect IQ</span><span class="tag">UX on 240px</span></div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="experience">
+  <div class="wrap">
+    <div class="sec-head reveal"><h2>Experience</h2><span class="sec-note">where the numbers come from</span></div>
+    <div class="xp" style="margin-top:34px">
+      <div class="xp-item now reveal">
+        <span class="xp-when">Jan 2026 – present</span>
+        <h3>D-Brick</h3>
+        <span class="xp-role">Co-Founder &amp; Tech Lead</span>
+        <p>Data-driven LEGO reselling: scraping, AI-assisted classification, pricing intelligence, and a direct e-commerce channel.</p>
+      </div>
+      <div class="xp-item now reveal">
+        <span class="xp-when">Mar 2026 – present</span>
+        <h3>Erasmus School of Economics</h3>
+        <span class="xp-role">Teaching Assistant</span>
+        <p>Weekly lectures and group tutoring for undergraduates on quantitative methods and digital marketing; 30+ structured presentation evaluations per bimester.</p>
+      </div>
+      <div class="xp-item reveal">
+        <span class="xp-when">Apr 2023 – Aug 2025</span>
+        <h3>Elmec Informatica</h3>
+        <span class="xp-role">Business Intelligence Data Analyst</span>
+        <p>SQL on 10M+ record datasets, 10+ new ETL procedures per month, and 50+ Qlik dashboards used by 70+ stakeholders across 5 departments — including an internal app generating €20,000+ in annual savings.</p>
+      </div>
+      <div class="xp-item reveal">
+        <span class="xp-when">Jul 2022 – Feb 2023</span>
+        <h3>Shopfully</h3>
+        <span class="xp-role">Strategic Partnership Intern</span>
+        <p>50+ campaign reports for 30+ clients and 10+ Tableau dashboards supporting account growth.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="about">
+  <div class="wrap about-grid">
+    <div class="reveal">
+      <h2 style="margin-bottom:20px">About</h2>
+      <p>I'm Francesco — Italian, based in Rotterdam. I came to data science through economics, which is why I care less about prediction accuracy for its own sake and more about a harder question: <em>did this intervention actually work?</em></p>
+      <p>At Erasmus University I'm completing an MSc in Data Science &amp; Marketing Analytics and working as a teaching assistant, after three years in business intelligence and analytics in Italy. Outside the university I run the technical side of D-Brick, where pricing models and scrapers meet the very physical reality of LEGO bricks in boxes.</p>
+      <p>Off the clock: football (team captain, ten years competitive), chess (1600 Elo), theater, and pointing telescopes at things.</p>
+    </div>
+    <dl class="facts reveal">
+      <dt>Currently</dt><dd>MSc DSMA · Erasmus University Rotterdam</dd>
+      <dt>Previously</dt><dd>BI Data Analyst · Elmec Informatica</dd>
+      <dt>Focus</dt><dd>Causal inference · incrementality · MMM</dd>
+      <dt>Toolbox</dt><dd>Python · R · SQL · BigQuery · Qlik · Tableau · PowerBI</dd>
+      <dt>Languages</dt><dd>Italian (native) · English (C1, IELTS 7.5)</dd>
+      <dt>Side quest</dt><dd>ZenIQ — live on the Garmin Connect IQ Store</dd>
+    </dl>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="wrap contact reveal">
+    <h2>Let's talk.</h2>
+    <p style="color:var(--ink-soft);max-width:52ch">Open to data science roles and consulting in marketing analytics, experimentation and measurement — and always happy to talk causal inference.</p>
+    <div class="contact-links">
+      <a class="btn btn-primary" href="mailto:fra98dipresa@gmail.com">Email me</a>
+      <a class="btn btn-ghost" href="https://www.linkedin.com/in/francesco-di-presa-bb631223a/" target="_blank" rel="noopener">LinkedIn</a>
+      <a class="btn btn-ghost" href="https://github.com/FrancescoDiPresa" target="_blank" rel="noopener">GitHub</a>
+      <a class="btn btn-ghost" href="Francesco_Di_Presa_CV.pdf" download>Download CV (PDF)</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px">
+    <span>© 2026 Francesco Di Presa · Rotterdam</span>
+    <span>standard errors clustered, opinions my own</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var els = document.querySelectorAll('.reveal');
+  if (reduced || !('IntersectionObserver' in window)) {
+    els.forEach(function(el){ el.classList.add('visible'); });
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.15 });
+  els.forEach(function(el){ io.observe(el); });
+})();
+</script>
+
 </body>
 </html>
