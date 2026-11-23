@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0C0C0D">
+<title>Put your name on nothing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Space+Grotesk:wght@700&display=swap">
+<style>
+:root{--bg:#0C0C0D;--ink:#F2F1EE;--grey:#9B9A97;--accent:#F5D547}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0;background:var(--bg);color:var(--ink)}
+body{font:16px/1.5 Inter,system-ui,-apple-system,sans-serif;min-height:100svh;-webkit-font-smoothing:antialiased}
+main{max-width:860px;margin:0 auto;padding:clamp(28px,6vw,72px) max(5vw,18px) 40px;display:grid;gap:24px}
+h1{margin:0;font:700 clamp(40px,9vw,76px)/.98 "Space Grotesk","Helvetica Neue",Arial,sans-serif;letter-spacing:-.045em;text-wrap:balance}
+h1 span{color:var(--accent)}
+.plan{margin:-8px 0 0;color:var(--grey);font-size:17px}
+.plan b{color:var(--accent);font-weight:500}
+label{display:block;margin-bottom:6px;color:var(--grey);font-size:14px}
+input{width:100%;padding:10px 0 12px;border:0;border-bottom:2px solid var(--accent);border-radius:0;background:transparent;color:var(--ink);font:500 clamp(22px,5vw,28px)/1.2 Inter,sans-serif;outline:none}
+input::placeholder{color:#575652}
+input:focus-visible{border-bottom-width:3px}
+.preview{border-radius:14px;overflow:hidden;aspect-ratio:842/595}
+.preview img{display:block;width:100%;height:100%;object-fit:contain}
+.actions{display:flex;flex-wrap:wrap;gap:12px}
+button{flex:1 1 200px;min-height:54px;padding:0 22px;border:2px solid var(--accent);border-radius:12px;font:500 17px Inter,sans-serif;cursor:pointer;transition:transform .15s}
+button:active{transform:translateY(1px)}
+.primary{background:var(--accent);color:#0C0C0D}
+.ghost{background:transparent;color:var(--ink)}
+button:disabled{opacity:.35;cursor:not-allowed}
+button:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.note{margin:0;color:var(--grey);font-size:15px}
+.hint{margin:0;padding:14px 16px;border:1px solid #2E2E31;border-radius:12px;color:var(--ink);font-size:15px}
+.bad{margin:0;font-size:19px}
+footer{color:var(--grey);font-size:13px}
+@media (prefers-reduced-motion:reduce){button{transition:none}}
+</style>
+</head>
+<body>
+<main>
+<h1>Put your name on nothing<span>.</span></h1>
+<p class="plan" id="plan">Unlocking your certificate…</p>
+<section id="app" hidden>
+<div style="display:grid;gap:24px">
+<div>
+<label for="name" id="label">Your name</label>
+<input id="name" maxlength="40" placeholder="Type it here" autocomplete="name" autocapitalize="words" spellcheck="false" enterkeyhint="done">
+</div>
+<div class="preview"><img id="img" alt="Preview of your certificate"></div>
+<div class="actions">
+<button class="primary" id="pdf" type="button" disabled>Download PDF</button>
+<button class="ghost" id="png" type="button" disabled>Download PNG</button>
+</div>
+<p class="note" id="msg">The PNG is the one to post in the comments.</p>
+<p class="hint" id="inapp" hidden>Download not starting? Long-press the image to save it, or open this page in your browser.</p>
+</div>
+</section>
+<p class="bad" id="bad" hidden>This link doesn't unlock anything. Use the link you got after buying.</p>
+<noscript><p class="bad">This page needs JavaScript to put your name on the certificate.</p></noscript>
+<footer>Your blank certificate is also in your Payhip receipt.</footer>
+</main>
+<script src="lib/pdf-lib.min.js"></script>
+<script src="lib/fontkit.umd.min.js"></script>
+<script src="lib/pdf.min.js"></script>
+<script>
+{
+  const $ = (id) => document.getElementById(id);
+  const ui = {plan: $('plan'), app: $('app'), bad: $('bad'), name: $('name'), label: $('label'),
+    img: $('img'), pdf: $('pdf'), png: $('png'), msg: $('msg'), inapp: $('inapp')};
+  const X = 70, BASELINE = 347, MAXW = 702, SIZE = 30, MIN = 14;
+  const NOTE = 'The PNG is the one to post in the comments.';
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'lib/pdf.worker.min.js';
+
+  let plan = null, basePdf = null, fontBytes = null, charset = null;
+  let seq = 0, current = null, pending = null, imgUrl = null, timer = 0;
+
+  const hex = (buf) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
+  const sha = (s) => crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+  const slug = (s) => s.replace(/[Łł]/g, 'l').replace(/[Øø]/g, 'o').replace(/ß/g, 'ss').replace(/[Ææ]/g, 'ae').replace(/[Đđ]/g, 'd').normalize('NFKD').replace(/\p{M}/gu, '').toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'owner';
+
+  async function unlock(token) {
+    const id = hex(await sha('id:' + token)).slice(0, 16);
+    const res = await fetch('d/' + id + '.bin');
+    if (!res.ok) throw new Error('unknown link');
+    const buf = new Uint8Array(await res.arrayBuffer());
+    const key = await crypto.subtle.importKey('raw', await sha('key:' + token), 'AES-GCM', false, ['decrypt']);
+    const plain = await crypto.subtle.decrypt({name: 'AES-GCM', iv: buf.slice(0, 12)}, key, buf.slice(12));
+    return JSON.parse(new TextDecoder().decode(plain));
+  }
+
+  function clean(raw) {
+    let text = '', dropped = false;
+    for (const ch of raw.replace(/\s+/g, ' ').trim().slice(0, 40)) {
+      if (ch === ' ' || charset.has(ch.codePointAt(0))) text += ch; else dropped = true;
+    }
+    return {text: text.replace(/\s+/g, ' ').trim(), dropped};
+  }
+
+  async function makePdf(name) {
+    const doc = await PDFLib.PDFDocument.load(basePdf);
+    const form = doc.getForm();
+    for (const field of form.getFields()) form.removeField(field);
+    if (name) {
+      doc.registerFontkit(fontkit);
+      const font = await doc.embedFont(fontBytes, {subset: true});
+      let size = SIZE;
+      while (size > MIN && font.widthOfTextAtSize(name, size) > MAXW) size -= 1;
+      doc.getPage(0).drawText(name, {x: X, y: BASELINE, size, font, color: PDFLib.rgb(0.949, 0.945, 0.933)});
+      doc.setTitle(plan.title + ': ' + name);
+    }
+    return doc.save();
+  }
+
+  async function renderPng(bytes) {
+    const pdf = await pdfjsLib.getDocument({data: bytes.slice(), isEvalSupported: false}).promise;
+    try {
+      const page = await pdf.getPage(1);
+      const vp = page.getViewport({scale: 2});
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.floor(vp.width);
+      canvas.height = Math.floor(vp.height);
+      await page.render({canvasContext: canvas.getContext('2d'), viewport: vp, background: '#0C0C0D'}).promise;
+      return await new Promise((ok, ko) => canvas.toBlob((b) => (b ? ok(b) : ko(new Error('png'))), 'image/png'));
+    } finally {
+      pdf.destroy();
+    }
+  }
+
+  async function build() {
+    const my = ++seq;
+    const {text, dropped} = clean(ui.name.value);
+    const bytes = await makePdf(text);
+    if (my !== seq) return current;
+    const png = await renderPng(bytes);
+    if (my !== seq) return current;
+    current = {text, bytes, png};
+    if (imgUrl) URL.revokeObjectURL(imgUrl);
+    imgUrl = URL.createObjectURL(png);
+    ui.img.src = imgUrl;
+    ui.pdf.disabled = ui.png.disabled = !text;
+    ui.msg.textContent = dropped ? "Some characters aren't in this font, so they were left out." : NOTE;
+    return current;
+  }
+
+  function schedule() {
+    clearTimeout(timer);
+    timer = setTimeout(() => { pending = build().catch(showError); }, 220);
+  }
+
+  async function latest() {
+    clearTimeout(timer);
+    if (current && current.text === clean(ui.name.value).text) return current;
+    pending = build();
+    return pending;
+  }
+
+  function save(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = Object.assign(document.createElement('a'), {href: url, download: filename});
+    document.body.append(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 15000);
+  }
+
+  function showError() {
+    ui.msg.textContent = 'Something went wrong. Reload the page and try again.';
+  }
+
+  function fail() {
+    ui.plan.hidden = true;
+    ui.bad.hidden = false;
+  }
+
+  ui.name.addEventListener('input', schedule);
+  ui.name.addEventListener('keydown', (e) => { if (e.key === 'Enter') ui.name.blur(); });
+  ui.pdf.addEventListener('click', async () => {
+    try {
+      const c = await latest();
+      if (c && c.text) save(new Blob([c.bytes], {type: 'application/pdf'}), plan.slug + '-' + slug(c.text) + '.pdf');
+    } catch (e) { showError(); }
+  });
+  ui.png.addEventListener('click', async () => {
+    try {
+      const c = await latest();
+      if (c && c.text) save(c.png, plan.slug + '-' + slug(c.text) + '.png');
+    } catch (e) { showError(); }
+  });
+
+  (async () => {
+    const token = new URLSearchParams(location.search).get('k') || location.hash.slice(1);
+    if (!token) return fail();
+    try {
+      const [p, font] = await Promise.all([
+        unlock(token),
+        fetch('font/SpaceGrotesk-Bold.ttf').then((r) => r.arrayBuffer()),
+      ]);
+      plan = p;
+      fontBytes = font;
+      basePdf = Uint8Array.from(atob(p.pdf), (c) => c.charCodeAt(0));
+      const probe = await PDFLib.PDFDocument.create();
+      probe.registerFontkit(fontkit);
+      charset = new Set((await probe.embedFont(fontBytes)).getCharacterSet());
+    } catch (e) {
+      return fail();
+    }
+    document.documentElement.style.setProperty('--accent', plan.color);
+    const b = document.createElement('b');
+    b.textContent = plan.title;
+    ui.plan.replaceChildren('Your certificate for ', b, '.');
+    ui.label.textContent = plan.label;
+    ui.app.hidden = false;
+    if (/LinkedInApp|FBAN|FBAV|Instagram/i.test(navigator.userAgent)) ui.inapp.hidden = false;
+    else if (matchMedia('(pointer: coarse)').matches) {
+      ui.inapp.textContent = 'On a phone, long-press the image to save it to your photos.';
+      ui.inapp.hidden = false;
+    }
+    try { await build(); } catch (e) { showError(); }
+    if (matchMedia('(pointer: fine)').matches) ui.name.focus();
+  })();
+}
+</script>
+</body>
+</html>
